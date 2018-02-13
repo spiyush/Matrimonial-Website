@@ -1,4 +1,13 @@
-
+<?php
+// Initialize the session
+session_start();
+ 
+// If session variable is not set it will redirect to login page
+if(!isset($_SESSION['username']) || empty($_SESSION['username'])){
+  header("location: index.php");
+  exit;
+}
+?>
 <html class="no-js">
 <head>
   <!-- basic page needs-->
@@ -32,7 +41,9 @@
 
           <div class="text-align-center">
             <h1>Matrimonial Website</h1>
-            <p class="lead">Be happy together....</p>
+            <p class="lead">Be happy together....
+  Dashboard | Hi, <b><?php echo $_SESSION['username']; ?></b>. Welcome to our  Matrimonial Website.
+            </p>
           </div>
         </div>
       </div>

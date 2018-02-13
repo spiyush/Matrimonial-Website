@@ -93,20 +93,10 @@
 
 </section>
 
-
-
 <!-- Small Screens Filters Toggle Button -->
 
 
-
-
-
-
 <!-- End Body Content -->
-
-
-
-
 
 
 <?php include 'footer.php';?>

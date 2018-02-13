@@ -1,7 +1,3 @@
-
-
-
-
 <html class="no-js">
 <head>
 <!-- basic page needs-->
