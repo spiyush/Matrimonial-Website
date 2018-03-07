@@ -1,223 +1,194 @@
-<?php
-// Include config file
-require_once 'config.php';
- 
-// Define variables and initialize with empty values
-$username = $password = $confirm_password = "";
-$username_err = $password_err = $confirm_password_err = "";
- 
-// Processing form data when form is submitted
-if($_SERVER["REQUEST_METHOD"] == "POST"){
- 
-    // Validate username
-    if(empty(trim($_POST["username"]))){
-        $username_err = "Please enter a username.";
-    } else{
-        // Prepare a select statement
-        $sql = "SELECT id FROM user WHERE username = ?";
-        
-        if($stmt = mysqli_prepare($link, $sql)){
-            // Bind variables to the prepared statement as parameters
-            mysqli_stmt_bind_param($stmt, "s", $param_username);
-            
-            // Set parameters
-            $param_username = trim($_POST["username"]);
-            
-            // Attempt to execute the prepared statement
-            if(mysqli_stmt_execute($stmt)){
-                /* store result */
-                mysqli_stmt_store_result($stmt);
-                
-                if(mysqli_stmt_num_rows($stmt) == 1){
-                    $username_err = "This username is already taken.";
-                } else{
-                    $username = trim($_POST["username"]);
-                }
-            } else{
-                echo "Oops! Something went wrong. Please try again later.";
-            }
-        }
-         
-        // Close statement
-        mysqli_stmt_close($stmt);
-    }
-    
-    // Validate password
-    if(empty(trim($_POST['password']))){
-        $password_err = "Please enter a password.";     
-    } elseif(strlen(trim($_POST['password'])) < 6){
-        $password_err = "Password must have atleast 6 characters.";
-    } else{
-        $password = trim($_POST['password']);
-    }
-    
-    // Validate confirm password
-    if(empty(trim($_POST["confirm_password"]))){
-        $confirm_password_err = 'Please confirm password.';     
-    } else{
-        $confirm_password = trim($_POST['confirm_password']);
-        if($password != $confirm_password){
-            $confirm_password_err = 'Password did not match.';
-        }
-    }
-    
-    // Check input errors before inserting in database
-    if(empty($username_err) && empty($password_err) && empty($confirm_password_err)){
-        
-        // Prepare an insert statement
-        $sql = "INSERT INTO user (username, password) VALUES (?, ?)";
-         
-        if($stmt = mysqli_prepare($link, $sql)){
-            // Bind variables to the prepared statement as parameters
-            mysqli_stmt_bind_param($stmt, "ss", $param_username, $param_password);
-            
-            // Set parameters
-            $param_username = $username;
-            $param_password = password_hash($password, PASSWORD_DEFAULT); // Creates a password hash
-            
-            // Attempt to execute the prepared statement
-            if(mysqli_stmt_execute($stmt)){
-                // Redirect to login page
-                header("location: login.php");
-            } else{
-                echo "Something went wrong. Please try again later.";
-            }
-        }
-         
-        // Close statement
-        mysqli_stmt_close($stmt);
-    }
-    
-    // Close connection
-    mysqli_close($link);
-}
-?>
-<html class="no-js">
+<?php include_once("includes/basic_includes.php");?>
+<?php include_once("functions.php"); ?>
+<?php register(); ?>
+<!DOCTYPE HTML>
+<html>
 <head>
-  <!-- basic page needs-->
-  <meta http-equiv="content-type" content="text/html; charset=utf-8">
-  <title>Register | Matrimonial Website</title>
+<title>Matrimonial Website </title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
-  <meta name="description" content="">
-  <meta name="keywords" content="">
-  <meta name="author" content="">
-  <!-- mobile specific metas-->
-  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0">
-  <meta name="format-detection" content="telephone=no">
-  <!-- css -->
-  <link href="css/bootstrap.css" rel="stylesheet" type="text/css">
-  <link href="css/bootstrap-theme.css" rel="stylesheet" type="text/css">
-  <link href="css/style.css" rel="stylesheet" type="text/css">
-  <link href="vendor/prettyphoto/css/prettyphoto.css" rel="stylesheet" type="text/css">
-  <link href="vendor/owl-carousel/css/owl.carousel.css" rel="stylesheet" type="text/css">
-  <link href="vendor/owl-carousel/css/owl.theme.css" rel="stylesheet" type="text/css">
-  <link href="css/custom.css" rel="stylesheet" type="text/css">
-  <!-- color style -->
-  <link class="alt" href="colors/color1.css" rel="stylesheet" type="text/css">
+<script type="application/x-javascript"> addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false); function hideURLbar(){ window.scrollTo(0,1); } </script>
+<link href="css/bootstrap-3.1.1.min.css" rel='stylesheet' type='text/css' />
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="js/jquery.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<!-- Custom Theme files -->
 
-  <link href="style-switcher/css/style-switcher.css" rel="stylesheet" type="text/css">
-
-
+ <link rel="icon" href="images/146457.png">
+<link href="css/style.css" rel='stylesheet' type='text/css' />
+<link href='//fonts.googleapis.com/css?family=Oswald:300,400,700' rel='stylesheet' type='text/css'>
+<link href='//fonts.googleapis.com/css?family=Ubuntu:300,400,500,700' rel='stylesheet' type='text/css'>
+<!--font-Awesome-->
+<link href="css/font-awesome.css" rel="stylesheet"> 
+<!--font-Awesome-->
+<script>
+$(document).ready(function(){
+    $(".dropdown").hover(            
+        function() {
+            $('.dropdown-menu', this).stop( true, true ).slideDown("fast");
+            $(this).toggleClass('open');        
+        },
+        function() {
+            $('.dropdown-menu', this).stop( true, true ).slideUp("fast");
+            $(this).toggleClass('open');       
+        }
+    );
+});
+</script>
 </head>
-
-<body class="home">
-  <!-- start site header -->
-  <?php include 'header.php';?>
-
-  
-
-  <div class="jumbotron"  >
-    <div class="dark-bg parallax parallax2" style="background-image:url(img/iages1.jpg);">
-      <div class="overlay-transparent padding-tb75">
-        <div class="container" >
-          <!-- Recently Listed Vehicles -->
-
-          <div class="text-align-center">
-            <h1>Matrimonial Website</h1>
-            <p class="lead">Be happy together....</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-
-
+<body>
+<!-- ============================  Navigation Start =========================== -->
+<?php include_once("includes/navigation.php");?>
+<!-- ============================  Navigation End ============================ -->
+<div class="grid_12">
+  <div class="container">
+   <div class="breadcrumb1">
+     <ul>
+        <a href="index.php"><i class="fa fa-home home_1"></i></a>
+        <span class="divider">&nbsp;|&nbsp;</span>
+        <li class="current-page">Register</li>
+     </ul>
+   </div>
+   <div class="services">
+   	  <div class="col-sm-6 login_left">
+	     <form action="" method="POST">
+	  	    <div class="form-group">
+		      <label for="edit-name">Username <span class="form-required" title="This field is required.">*</span></label>
+		      <input type="text" id="edit-name" name="name" value="" size="60" maxlength="60" class="form-text required">
+		    </div>
+		    <div class="form-group">
+		      <label for="edit-pass">Password <span class="form-required" title="This field is required.">*</span></label>
+		      <input type="password" id="edit-pass" name="pass" size="60" maxlength="128" class="form-text required">
+		    </div>
+		    <div class="form-group">
+		      <label for="edit-name">Email <span class="form-required" title="This field is required.">*</span></label>
+		      <input type="text" id="edit-name" name="email" value="" size="60" maxlength="60" class="form-text required">
+		    </div>
+		    <div class="age_select">
+		      <label for="edit-pass">Age <span class="form-required" title="This field is required.">*</span></label>
+		        <div class="age_grid">
+		         <div class="col-sm-4 form_box">
+                  <div class="select-block1">
+                    <select name="day">
+	                    <option value="">Date</option>
+	                     <option value="1">1</option>
+		                    <option value="2">2</option>
+		                    <option value="3">3</option>
+		                    <option value="4">4</option>
+		                    <option value="5">5</option>
+		                    <option value="6">6</option>
+		                    <option value="7">7</option>
+		                    <option value="8">8</option>
+		                    <option value="9">9</option>
+		                    <option value="10">10</option>
+		                    <option value="11">11</option>
+		                    <option value="12">12</option>
+		                    <option value="13">13</option>
+		                    <option value="14">14</option>
+		                    <option value="15">15</option>
+		                    <option value="16">16</option>
+		                    <option value="17">17</option>
+		                    <option value="18">18</option>
+		                    <option value="19">19</option>
+		                    <option value="20">20</option>
+		                    <option value="21">21</option>
+		                    <option value="22">22</option>
+		                    <option value="23">23</option>
+		                    <option value="24">24</option>
+		                    <option value="25">25</option>
+		                    <option value="26">26</option>
+		                    <option value="27">27</option>
+		                    <option value="28">28</option>
+		                    <option value="29">29</option>
+		                    <option value="30">30</option>
+		                    <option value="31">31</option>
+                    </select>
+                  </div>
+            </div>
+            <div class="col-sm-4 form_box2">
+                   <div class="select-block1">
+                    <select name="month">
+	                    <option value="">Month</option>
+	                    <option value="01">January</option>
+	                    <option value="02">February</option>
+	                    <option value="03">March</option>
+	                    <option value="04">April</option>
+	                    <option value="05">May</option>
+	                    <option value="06">June</option>
+	                    <option value="07">July</option>
+	                    <option value="08">August</option>
+	                    <option value="09">September</option>
+	                    <option value="10">October</option>
+	                    <option value="11">November</option>
+	                    <option value="12">December</option>
+                    </select>
+                  </div>
+                 </div>
+                 <div class="col-sm-4 form_box1">
+                   <div class="select-block1">
+                    <select name="year">
+	                    <option value="">Year</option>
+		                    <option value="1980">1980</option>
+		                    <option value="1981">1981</option>
+		                    <option value="1981">1981</option>
+		                    <option value="1983">1983</option>
+		                    <option value="1984">1984</option>
+		                    <option value="1985">1985</option>
+		                    <option value="1986">1986</option>
+		                    <option value="1987">1987</option>
+		                    <option value="1988">1988</option>
+		                    <option value="1989">1989</option>
+		                    <option value="1990">1990</option>
+		                    <option value="1991">1991</option>
+		                    <option value="1992">1992</option>
+		                    <option value="1993">1993</option>
+		                    <option value="1994">1994</option>
+		                    <option value="1995">1995</option>
+		                    <option value="1996">1996</option>
+		                    <option value="1997">1997</option>
+		                    <option value="1998">1998</option>
+		                    <option value="1999">1999</option>
+		                    <option value="2000">2000</option>
+		                    <option value="2001">2001</option>
+		                    <option value="2002">2002</option>
+		                    <option value="2003">2003</option>
+		                    <option value="2004">2004</option>
+		                    <option value="2005">2005</option>
+		                    <option value="2006">2006</option>
+                    </select>
+                   </div>
+                  </div>
+                  <div class="clearfix"> </div>
+                 </div>
+              </div>
+              <div class="form-group form-group1">
+                <label class="col-sm-7 control-lable" for="sex">Sex : </label>
+                <div class="col-sm-5">
+                    <div class="radios">
+				        <label for="radio-01" class="label_radio">
+				            <input type="radio" name="gender" value="male" checked> Male
+				        </label>
+				        <label for="radio-02" class="label_radio">
+				            <input type="radio" name="gender" value="female"> Female
+				        </label>
+	                </div>
+                </div>
+                <div class="clearfix"> </div>
+             </div>
+			  
+			  <div class="form-actions">
+			    <input type="submit" id="edit-submit" name="op" value="Submit" class="btn_1 submit">
+			  </div>
+		 </form>
+	  </div>
+	 
+   </div>
   </div>
-
-
-  <!-- End of the header -->
-  <!-- Start Body Content -->
-
-  <div class="modal-dialog modal-sm" style="width:40%">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h4>Sign up </h4>
-      </div>
-      <div class="modal-body">
-        <form action="" method="POST" >
-          <main role="main">
-
-
-
-              <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
-            <div class="form-group <?php echo (!empty($username_err)) ? 'has-error' : ''; ?>">
-                <label>Username:<sup>*</sup></label>
-                <input type="text" name="username"class="form-control" value="<?php echo $username; ?>">
-                <span class="help-block"><?php echo $username_err; ?></span>
-            </div>    
-            <div class="form-group <?php echo (!empty($password_err)) ? 'has-error' : ''; ?>">
-                <label>Password:<sup>*</sup></label>
-                <input type="password" name="password" class="form-control" value="<?php echo $password; ?>">
-                <span class="help-block"><?php echo $password_err; ?></span>
-            </div>
-            <div class="form-group <?php echo (!empty($confirm_password_err)) ? 'has-error' : ''; ?>">
-                <label>Confirm Password:<sup>*</sup></label>
-                <input type="password" name="confirm_password" class="form-control" value="<?php echo $confirm_password; ?>">
-                <span class="help-block"><?php echo $confirm_password_err; ?></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" class="btn btn-primary" value="Submit">
-                <input type="reset" class="btn btn-default" value="Reset">
-            </div>
-            <p>Already have an account? <a href="login.php">Login here</a>.</p>
-        </form>
-
-          </main>
-        </form>
-
-   
-      </div>
-    </div>
-  </div>
-
-
-  <?php include 'footer.php';?>
-
-</div>
 </div>
 
 
+<?php include_once("footer.php");?>
 
-
-
-<script src="vendor/prettyphoto/js/prettyphoto.js"></script> <!-- prettyphoto plugin -->
-<script src="js/ui-plugins.js"></script> <!-- ui plugins -->
-<script src="js/helper-plugins.js"></script> <!-- helper plugins -->
-<script src="vendor/owl-carousel/js/owl.carousel.min.js"></script> <!-- owl carousel -->
-<script src="vendor/password-checker.js"></script> <!-- password checker -->
-<script src="js/bootstrap.js"></script> <!-- ui -->
-<script src="js/init.js"></script> <!-- all scripts -->
-<script src="vendor/flexslider/js/jquery.flexslider.js"></script> <!-- flexslider -->
-<script src="style-switcher/js/jquery_cookie.js"></script>
-<script src="style-switcher/js/script.js"></script>
-<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false&libraries=places"></script>
 </body>
-</html>
-
-
-
-
-
-
-
+</html>	
